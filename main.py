@@ -1,9 +1,7 @@
 import time
-
+import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_experimental_option('detach', True)
@@ -20,7 +18,10 @@ def scrap():
 def get_details(lst):
     place = lst[0]
     place.click()
-    date = driver.find_element(By.ID, 'localized').text
+    try:
+        date = driver.find_element(By.ID, 'localized').text
+    except:
+        date = 'March 4th 2023'
     outcome = driver.find_element(By.CSS_SELECTOR, 'section h6 span').text
     company = driver.find_element(By.XPATH, '/html/body/div/div/main/div/section[2]/div/div[1]/div/div[1]').text
     status = driver.find_element(By.XPATH, '/html/body/div/div/main/div/section[2]/div/div[1]/div/div[2]').text
@@ -39,10 +40,12 @@ def get_details(lst):
                 break
             except:
                 continue
-    mission_details = driver.find_element(By.CSS_SELECTOR, 'section div div p').text
+    try:        
+        mission_details = driver.find_element(By.CSS_SELECTOR, 'section div div p').text
+    except:
+        mission_details = 'No Details'    
     lst.pop(0)
     final_lst = [new_status, company, date, location, outcome, mission_details, new_price]
-    print(final_lst)
     driver.back()
     return final_lst
 
@@ -50,7 +53,7 @@ def go_next():
     try:
         next = driver.find_element(By.XPATH, '/html/body/div/div/main/div/div[2]/div[2]/span/div/a[1]/span')
         next.click()
-        time.sleep(1)
+        
         return True
     except:
         return False    
@@ -67,21 +70,25 @@ class Rockets:
         self.order = order
 
 # use lst from details to make rocket
+all_data = {}
 count = 0
 def main():
     lst = scrap()
+    def make_rockets(lst):
+            Rockets(lst[0], lst[1], lst[2], lst[3], lst[4], lst[5], lst[6], count)  
     while lst:
+        global count
         count += 1
-        time.sleep(1)
-        deets = get_details()
-        def make_rockets(lst):
-            Rockets(lst[0], lst[1], lst[2], lst[3], lst[4], lst[5], lst[6], count)   
+        print(count)
+        deets = get_details(lst)
+        all_data.update({f'Rocket {count}': deets})
         make_rockets(deets)
     if go_next():
         go_next
         main()
     print('The end')
+    print(all_data)
+    df = pd.DataFrame(all_data)
+    df.to_csv('rocket-data', index=False)
 
-
-    
-
+main()
