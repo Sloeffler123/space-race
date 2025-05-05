@@ -3,7 +3,7 @@ import plotly
 import time
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut
-df = pd.read_csv('adjusted.csv')
+df = pd.read_csv('rocket-data.csv')
 
 loc = df['location']
 
