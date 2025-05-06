@@ -1,5 +1,4 @@
 import pandas as pd
-import plotly
 import time
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut
